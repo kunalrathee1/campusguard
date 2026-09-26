@@ -135,7 +135,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('custom_students', JSON.stringify(customStudents));
     
     try {
-      await api.students.create(student);
+      // Map frontend fields to backend schema
+      const backendPayload = {
+        ...student,
+        rollNo: student.rollNumber,
+        department: student.departmentId || 'Unknown',
+        section: student.courseId || 'A'
+      };
+      await api.students.create(backendPayload);
     } catch (e) {
       console.warn('Failed to persist student to backend:', e);
     }
