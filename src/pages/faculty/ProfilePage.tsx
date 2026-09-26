@@ -6,7 +6,11 @@ import { faculty, departments, subjects } from '../../data/mockData';
 
 export default function FacultyProfilePage() {
   const { currentUser } = useAuth();
-  let fac = faculty.find(f => f.userId === currentUser?.id);
+  const customFacRaw = localStorage.getItem('custom_faculty');
+  const customFac = customFacRaw ? JSON.parse(customFacRaw) : [];
+  const allFaculty = [...faculty, ...customFac];
+
+  let fac = allFaculty.find(f => f.email === currentUser?.email);
   if (!fac && currentUser) {
     fac = {
       id: `fac-fallback-${currentUser.id}`,

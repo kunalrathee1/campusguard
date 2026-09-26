@@ -36,8 +36,12 @@ export default function Dashboard() {
   }, []);
 
   if (!currentUser) return null;
+  
+  const customFacRaw = localStorage.getItem('custom_faculty');
+  const customFac = customFacRaw ? JSON.parse(customFacRaw) : [];
+  const allFaculty = [...faculty, ...customFac];
 
-  let fac = faculty.find(f => f.userId === currentUser.id);
+  let fac = allFaculty.find(f => f.email === currentUser.email);
   if (!fac) {
     fac = {
       id: `fac-fallback-${currentUser.id}`,
