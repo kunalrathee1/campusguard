@@ -10,7 +10,3 @@ services:
         value: production
       - key: DATABASE_URL
         value: "file:./prisma/dev.db"
-    disk:
-      name: sqlite-data
-      mountPath: /opt/render/project/src/server/prisma
-      sizeGB: 1
