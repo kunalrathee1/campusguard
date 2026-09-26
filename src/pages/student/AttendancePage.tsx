@@ -8,7 +8,7 @@ export default function StudentAttendancePage() {
   const { currentUser } = useAuth();
   const { students, studentAttendances } = useAppContext();
 
-  const student = students.find(s => s.userId === currentUser?.id);
+  const student = students.find(s => s.email === currentUser?.email);
   const attendance = student ? studentAttendances.find(a => a.studentId === student.id) : null;
 
   if (!student) {

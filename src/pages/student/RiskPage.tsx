@@ -8,7 +8,7 @@ export default function StudentRiskPage() {
   const { currentUser } = useAuth();
   const { students, riskRecords } = useAppContext();
 
-  const student = students.find(s => s.userId === currentUser?.id);
+  const student = students.find(s => s.email === currentUser?.email);
   const risk = student ? riskRecords.find(r => r.studentId === student.id) : null;
 
   if (!student) {

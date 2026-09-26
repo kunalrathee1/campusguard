@@ -23,7 +23,7 @@ export default function StudentDashboard() {
     return () => clearTimeout(t);
   }, []);
 
-  const student = students.find(s => s.userId === currentUser?.id);
+  const student = students.find(s => s.email === currentUser?.email);
   const attendance = student ? studentAttendances.find(a => a.studentId === student.id) : null;
   const risk = student ? riskRecords.find(r => r.studentId === student.id) : null;
   const studentWarnings = student ? warnings.filter(w => w.studentId === student.id && w.status === 'open') : [];

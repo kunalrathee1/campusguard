@@ -7,7 +7,7 @@ export default function StudentWarningsPage() {
   const { currentUser } = useAuth();
   const { students, warnings } = useAppContext();
 
-  const student = students.find(s => s.userId === currentUser?.id);
+  const student = students.find(s => s.email === currentUser?.email);
   const myWarnings = student ? warnings.filter(w => w.studentId === student.id) : [];
 
   if (!student) {

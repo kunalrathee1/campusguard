@@ -9,7 +9,7 @@ export default function StudentProfilePage() {
   const { currentUser } = useAuth();
   const { students } = useAppContext();
 
-  const student = students.find(s => s.userId === currentUser?.id);
+  const student = students.find(s => s.email === currentUser?.email);
   const dept = student ? departments.find(d => d.id === student.departmentId) : null;
   const course = student ? courses.find(c => c.id === student.courseId) : null;
 
