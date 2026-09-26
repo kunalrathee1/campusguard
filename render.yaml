@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: campusguard-backend
+    env: node
+    rootDir: server
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        value: "file:./prisma/dev.db"
+    disk:
+      name: sqlite-data
+      mountPath: /opt/render/project/src/server/prisma
+      sizeGB: 1

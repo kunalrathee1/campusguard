@@ -1,0 +1,10 @@
+{
+  "description": "A smart college attendance and early warning system offering role-based dashboards for admins, faculty, and students to monitor attendance, risks, and notifications.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

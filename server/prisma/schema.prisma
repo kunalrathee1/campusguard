@@ -1,0 +1,112 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String         @id @default(uuid())
+  email        String         @unique
+  passwordHash String
+  name         String
+  role         String         // "admin" | "faculty" | "student"
+  department   String?
+  avatar       String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  notifications Notification[]
+}
+
+model Student {
+  id              String            @id @default(uuid())
+  studentId       String            @unique // e.g. "STU-2024-001"
+  rollNo          String            @unique
+  name            String
+  email           String            @unique
+  department      String
+  semester        Int
+  section         String
+  totalClasses    Int               @default(0)
+  attendedClasses Int               @default(0)
+  attendanceRate  Float             @default(0)
+  riskLevel       String            @default("low") // "low" | "medium" | "high" | "critical"
+  riskScore       Int               @default(0)
+  academicScore   Float?            @default(0)
+  cgpa            Float?            @default(0)
+  contactPhone    String?
+  parentPhone     String?
+  parentEmail     String?
+  address         String?
+  status          String            @default("active") // "active" | "inactive" | "suspended"
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  attendance      AttendanceRecord[]
+  warnings        Warning[]
+  riskFactors     RiskFactor[]
+}
+
+model AttendanceRecord {
+  id        String   @id @default(uuid())
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  date      String   // "YYYY-MM-DD"
+  status    String   // "present" | "absent" | "late" | "excused"
+  subject   String
+  facultyId String?
+  createdAt DateTime @default(now())
+}
+
+model Warning {
+  id             String    @id @default(uuid())
+  studentId      String
+  student        Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  title          String
+  message        String
+  level          String    // "info" | "warning" | "critical"
+  category       String    // "attendance" | "academic" | "behavioral"
+  date           String    // "YYYY-MM-DD"
+  acknowledged   Boolean   @default(false)
+  acknowledgedAt DateTime?
+  createdAt      DateTime  @default(now())
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      String   // "warning" | "alert" | "info" | "success"
+  date      String   // ISO or readable date
+  read      Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+}
+
+model ClassSchedule {
+  id            String   @id @default(uuid())
+  code          String
+  name          String
+  department    String
+  semester      Int
+  section       String
+  facultyId     String?
+  facultyName   String?
+  schedule      String   // JSON or text: e.g. "Mon, Wed 10:00 AM - 11:30 AM"
+  totalStudents Int      @default(0)
+  room          String?
+  createdAt     DateTime @default(now())
+}
+
+model RiskFactor {
+  id             String   @id @default(uuid())
+  studentId      String
+  student        Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  factor         String
+  impact         String   // "high" | "medium" | "low"
+  recommendation String?
+  createdAt      DateTime @default(now())
+}
