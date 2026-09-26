@@ -8,6 +8,7 @@ import {
   studentOverallAttendances as mockStudentAttendances,
 } from '../data/mockData';
 import { api } from '../services/api';
+import { useAuth } from './AuthContext';
 
 type StudentOverallAttendance = (typeof mockStudentAttendances)[number];
 
@@ -98,9 +99,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const { isAuthenticated } = useAuth();
+  
   useEffect(() => {
-    refreshData();
-  }, []);
+    if (isAuthenticated) {
+      refreshData();
+    }
+  }, [isAuthenticated]);
 
   const getUnreadCount = (userId: string) =>
     notifications.filter((n) => (!n.targetUserId || n.targetUserId === userId) && !n.read).length;
