@@ -24,7 +24,7 @@ interface AppContextType {
   markAllNotificationsRead: (userId: string) => void;
 
   // mutations
-  addStudent: (student: Student) => void;
+  addStudent: (student: Student, password?: string) => void;
   updateStudent: (id: string, updates: Partial<Student>) => void;
   updateAttendance: (studentId: string, percentage: number) => void;
   issueManualWarning: (studentId: string, title: string, message: string, severity: 'low'|'medium'|'high') => void;
@@ -127,7 +127,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const addStudent = async (student: Student) => {
+  const addStudent = async (student: Student, password?: string) => {
     setStudents((prev) => [student, ...prev]);
     const customStudentsRaw = localStorage.getItem('custom_students');
     const customStudents = customStudentsRaw ? JSON.parse(customStudentsRaw) : [];
@@ -140,7 +140,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         ...student,
         rollNo: student.rollNumber,
         department: student.departmentId || 'Unknown',
-        section: student.courseId || 'A'
+        section: student.courseId || 'A',
+        password // pass the password for user provisioning!
       };
       await api.students.create(backendPayload);
     } catch (e) {

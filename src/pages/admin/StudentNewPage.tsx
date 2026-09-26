@@ -95,7 +95,7 @@ export default function StudentNewPage() {
         avatar: undefined
       };
 
-      addStudent(newStudent);
+      addStudent(newStudent, form.password);
       registerUser(newStudent.email, form.password, newUserObj);
       
       setSubmitting(false);

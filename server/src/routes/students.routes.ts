@@ -227,29 +227,51 @@ router.post('/', authenticateToken, requireRoles('admin', 'faculty'), async (req
 
     const generatedId = studentId || `STU-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
-    const newStudent = await prisma.student.create({
-      data: {
-        ...(req.body.id ? { id: req.body.id } : {}),
-        studentId: generatedId,
-        rollNo,
-        name,
-        email,
-        department,
-        semester: Number(semester),
-        section,
-        contactPhone,
-        parentPhone,
-        parentEmail,
-        address,
-        cgpa: cgpa ? Number(cgpa) : null,
-        academicScore: Number(academicScore) || 75,
-        totalClasses: Number(totalClasses) || 0,
-        attendedClasses: Number(attendedClasses) || 0,
-        attendanceRate,
-        riskLevel,
-        riskScore,
-        status: 'active',
-      },
+    const newStudent = await prisma.$transaction(async (tx) => {
+      const student = await tx.student.create({
+        data: {
+          ...(req.body.id ? { id: req.body.id } : {}),
+          studentId: generatedId,
+          rollNo,
+          name,
+          email,
+          department,
+          semester: Number(semester),
+          section,
+          contactPhone,
+          parentPhone,
+          parentEmail,
+          address,
+          cgpa: cgpa ? Number(cgpa) : null,
+          academicScore: Number(academicScore) || 75,
+          totalClasses: Number(totalClasses) || 0,
+          attendedClasses: Number(attendedClasses) || 0,
+          attendanceRate,
+          riskLevel,
+          riskScore,
+          status: 'active',
+        },
+      });
+
+      // Automatically provision a user account for the student
+      const bcrypt = await import('bcryptjs');
+      const password = req.body.password || 'student123';
+      const hash = await bcrypt.default.hash(password, 10);
+      
+      const existingUser = await tx.user.findUnique({ where: { email } });
+      if (!existingUser) {
+        await tx.user.create({
+          data: {
+            email,
+            passwordHash: hash,
+            name,
+            role: 'student',
+            department
+          }
+        });
+      }
+
+      return student;
     });
 
     res.status(201).json({ success: true, data: newStudent });
