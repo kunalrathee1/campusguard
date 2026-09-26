@@ -84,6 +84,44 @@ router.get('/me', authenticateToken, async (req: AuthenticatedRequest, res: Resp
   }
 });
 
+// POST /api/auth/register
+router.post('/register', authenticateToken, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    if (req.user?.role !== 'admin') {
+      res.status(403).json({ success: false, message: 'Only admins can register new users directly' });
+      return;
+    }
+
+    const { email, password, name, role, department } = req.body;
+    if (!email || !password || !name) {
+      res.status(400).json({ success: false, message: 'Missing required fields' });
+      return;
+    }
+
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) {
+      res.status(409).json({ success: false, message: 'User already exists' });
+      return;
+    }
+
+    const hash = await bcrypt.hash(password, 10);
+    const newUser = await prisma.user.create({
+      data: {
+        email,
+        passwordHash: hash,
+        name,
+        role: role || 'faculty',
+        department
+      }
+    });
+
+    res.status(201).json({ success: true, user: newUser });
+  } catch (error) {
+    console.error('Register error:', error);
+    res.status(500).json({ success: false, message: 'Internal server error during registration' });
+  }
+});
+
 // POST /api/auth/forgot-password
 router.post('/forgot-password', async (req: Request, res: Response): Promise<void> => {
   try {

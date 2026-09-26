@@ -63,7 +63,7 @@ export default function FacultyPage() {
     return e;
   };
 
-  const handleAdd = (e: React.FormEvent) => {
+  const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length > 0) {
@@ -87,7 +87,22 @@ export default function FacultyPage() {
       subjectIds: form.subjectId ? [form.subjectId] : [],
     };
 
-    // Register user for login access
+    // 1. Create User in Backend for real login access
+    try {
+      // dynamic import of api inside the component action to avoid top-level import conflicts if any
+      const { api } = await import('../../services/api');
+      await api.auth.register({
+        email: form.email.trim(),
+        password: form.password,
+        name: form.name.trim(),
+        role: 'faculty',
+        department: form.departmentId
+      });
+    } catch (e) {
+      console.warn("Failed to create faculty user in backend:", e);
+    }
+
+    // 2. Register local storage fallback
     registerUser(form.email.trim(), form.password, {
       id: newFac.userId,
       name: newFac.name,

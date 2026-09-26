@@ -40,6 +40,11 @@ export const api = {
         method: 'POST',
         body: JSON.stringify(credentials),
       }),
+    register: (data: { email: string; password: string; name: string; role?: string; department?: string }) =>
+      request<{ success: boolean; user: any }>('/auth/register', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
     me: () => request<{ success: boolean; user: any }>('/auth/me'),
     forgotPassword: (email: string) =>
       request<{ success: boolean; message: string }>('/auth/forgot-password', {
