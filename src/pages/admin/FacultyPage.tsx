@@ -71,10 +71,30 @@ export default function FacultyPage() {
       return;
     }
 
+    let realUserId = `u-fac-${Date.now()}`;
+
+    // 1. Create User in Backend for real login access
+    try {
+      // dynamic import of api inside the component action to avoid top-level import conflicts if any
+      const { api } = await import('../../services/api');
+      const res = await api.auth.register({
+        email: form.email.trim(),
+        password: form.password,
+        name: form.name.trim(),
+        role: 'faculty',
+        department: form.departmentId
+      });
+      if (res && res.success && res.user) {
+        realUserId = res.user.id;
+      }
+    } catch (e) {
+      console.warn("Failed to create faculty user in backend:", e);
+    }
+
     const newFac: Faculty = {
       id: `fac-${Date.now()}`,
       facultyId: `FAC-${1000 + facultyList.length + 1}`,
-      userId: `u-fac-${Date.now()}`,
+      userId: realUserId,
       name: form.name.trim(),
       email: form.email.trim(),
       phone: form.phone.trim(),
@@ -86,21 +106,6 @@ export default function FacultyPage() {
       joinedDate: new Date().toISOString().split('T')[0],
       subjectIds: form.subjectId ? [form.subjectId] : [],
     };
-
-    // 1. Create User in Backend for real login access
-    try {
-      // dynamic import of api inside the component action to avoid top-level import conflicts if any
-      const { api } = await import('../../services/api');
-      await api.auth.register({
-        email: form.email.trim(),
-        password: form.password,
-        name: form.name.trim(),
-        role: 'faculty',
-        department: form.departmentId
-      });
-    } catch (e) {
-      console.warn("Failed to create faculty user in backend:", e);
-    }
 
     // 2. Register local storage fallback
     registerUser(form.email.trim(), form.password, {
