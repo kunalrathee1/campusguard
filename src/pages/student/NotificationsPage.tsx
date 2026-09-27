@@ -6,10 +6,11 @@ import { useAuth } from '../../context/AuthContext';
 
 export default function StudentNotificationsPage() {
   const { currentUser } = useAuth();
-  const { notifications, markNotificationRead } = useAppContext();
+  const { notifications, markNotificationRead, students } = useAppContext();
+  const student = students.find(s => s.email === currentUser?.email);
 
   const myNotifications = notifications
-    .filter(n => n.targetUserId === currentUser?.id)
+    .filter(n => n.targetUserId === currentUser?.id || (student && n.targetUserId === student.id))
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   if (!currentUser) {

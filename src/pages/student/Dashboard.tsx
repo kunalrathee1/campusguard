@@ -28,7 +28,7 @@ export default function StudentDashboard() {
   const risk = student ? riskRecords.find(r => r.studentId === student.id) : null;
   const studentWarnings = student ? warnings.filter(w => w.studentId === student.id && w.status === 'open') : [];
   const myNotifications = notifications
-    .filter(n => n.targetUserId === currentUser?.id)
+    .filter(n => n.targetUserId === currentUser?.id || (student && n.targetUserId === student.id))
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 5);
   const unreadCount = myNotifications.filter(n => !n.read).length;

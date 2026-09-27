@@ -31,7 +31,7 @@ export default function ClassesPage() {
     return () => clearTimeout(t);
   }, []);
 
-  if (!currentUser) return null;
+  if (!currentUser) return <LoadingSpinner message="Loading user profile..." />;
   const customFacRaw = localStorage.getItem('custom_faculty');
   const customFac = customFacRaw ? JSON.parse(customFacRaw) : [];
   const allFaculty = [...faculty, ...customFac];
