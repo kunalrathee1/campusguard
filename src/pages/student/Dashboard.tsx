@@ -57,7 +57,17 @@ export default function StudentDashboard() {
   }
 
   const currentAttendance = attendance || { overallPercentage: 100, trend: 'stable' as const, totalPresent: 0, totalAbsent: 0, weeklyData: [], subjectAttendances: [] };
-  const currentRisk = risk || { level: 'low' as const, reason: 'No data available yet.', factors: [], score: 0 };
+  let currentRisk = risk || { level: 'low' as const, reason: 'No data available yet.', factors: [], score: 0 };
+  
+  if (!risk && currentAttendance.overallPercentage < 75) {
+    currentRisk = {
+      level: currentAttendance.overallPercentage < 65 ? 'high' : 'medium',
+      reason: `Attendance threshold breached. Current: ${currentAttendance.overallPercentage}%`,
+      factors: [`Attendance dropped to ${currentAttendance.overallPercentage}%`],
+      score: currentAttendance.overallPercentage < 65 ? 85 : 60
+    };
+  }
+  
   const riskStyle = riskColors[currentRisk.level];
 
   return (

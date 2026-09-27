@@ -49,14 +49,30 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [students, setStudents] = useState<Student[]>([...mockStudents, ...customStudents]);
   const [riskRecords] = useState(mockRiskRecords);
   
-  // Custom attendances from local storage
   const customAttRaw = localStorage.getItem('custom_attendances');
   const customAtt = customAttRaw ? JSON.parse(customAttRaw) : {};
-  const [studentAttendances, setStudentAttendances] = useState<StudentOverallAttendance[]>(
-    mockStudentAttendances.map(a => 
-      customAtt[a.studentId] ? { ...a, overallPercentage: customAtt[a.studentId] } : a
-    )
-  );
+  
+  const initialAttendances = [...mockStudentAttendances];
+  Object.keys(customAtt).forEach(stuId => {
+    const existing = initialAttendances.find(a => a.studentId === stuId);
+    if (existing) {
+      existing.overallPercentage = customAtt[stuId];
+    } else {
+      initialAttendances.push({
+        studentId: stuId,
+        overallPercentage: customAtt[stuId],
+        totalClasses: 100,
+        totalPresent: customAtt[stuId],
+        totalAbsent: 100 - customAtt[stuId],
+        totalLate: 0,
+        subjectAttendances: [],
+        trend: 'stable',
+        weeklyData: []
+      });
+    }
+  });
+
+  const [studentAttendances, setStudentAttendances] = useState<StudentOverallAttendance[]>(initialAttendances);
 
   // Sync with backend API if token is present
   const refreshData = async () => {

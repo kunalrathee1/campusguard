@@ -6,10 +6,11 @@ import { useAuth } from '../../context/AuthContext';
 
 export default function StudentRiskPage() {
   const { currentUser } = useAuth();
-  const { students, riskRecords } = useAppContext();
-
+  const { students, riskRecords, studentAttendances } = useAppContext();
+  
   const student = students.find(s => s.email === currentUser?.email);
   const risk = student ? riskRecords.find(r => r.studentId === student.id) : null;
+  const attendance = student ? studentAttendances.find(a => a.studentId === student.id) : null;
 
   if (!student) {
     return <LoadingSpinner message="Loading profile..." />;
@@ -21,7 +22,16 @@ export default function StudentRiskPage() {
     high: { bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-800', icon: 'text-red-500' },
   };
 
-  const currentRisk = risk || { level: 'low' as const, reason: 'No data available yet.', factors: [], score: 0 };
+  let currentRisk = risk || { level: 'low' as const, reason: 'No data available yet.', factors: [], score: 0 };
+  if (!risk && attendance && attendance.overallPercentage < 75) {
+    currentRisk = {
+      level: attendance.overallPercentage < 65 ? 'high' : 'medium',
+      reason: `Attendance threshold breached. Current: ${attendance.overallPercentage}%`,
+      factors: [`Attendance dropped to ${attendance.overallPercentage}%`],
+      score: attendance.overallPercentage < 65 ? 85 : 60
+    };
+  }
+  
   const riskStyle = riskColors[currentRisk.level];
 
   return (
